@@ -1,4 +1,8 @@
-use std::{fs, path::Path, sync::LazyLock};
+use std::{
+    fs,
+    path::Path,
+    sync::{LazyLock, Mutex},
+};
 
 use serde::Deserialize;
 
@@ -9,10 +13,10 @@ pub struct Config {
     /// # Documentation
     /// The name of the folder which holds the sound theme
     #[serde(default = "get_default_theme_name")]
-    theme_name: String,
+    pub theme_name: String,
 
     #[serde(default = "get_default_sound_ext")]
-    sound_ext: String,
+    pub sound_ext: String,
 }
 
 fn get_default_theme_name() -> String {
@@ -25,7 +29,7 @@ fn get_default_sound_ext() -> String {
 
 const CONFIG_PATH_SHORT: &str = "sound_themer/config.toml";
 
-static CONFIG: LazyLock<Config> = LazyLock::new(init_config);
+static CONFIG: LazyLock<Mutex<Config>> = LazyLock::new(|| Mutex::new(init_config()));
 
 fn init_config() -> Config {
     let config_home = get_config_home_dir();
@@ -55,12 +59,12 @@ fn get_config_from_file<S: AsRef<str>>(file_path: S) -> Config {
     toml::from_str(config.as_str()).unwrap_or_else(|e| panic!("{}", ThemerError::TomlReadError(e)))
 }
 
-pub fn get_config() -> Config {
-    CONFIG.clone()
+pub fn get_config() -> Result<Config, ThemerError> {
+    Ok(CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?.clone())
 }
 
 pub fn get_theme_path_from_name() -> Result<String, ThemerError> {
-    let theme_name = get_config().theme_name;
+    let theme_name = get_config()?.theme_name;
     let theme_path_str = format!("/usr/share/sounds/{theme_name}");
 
     // Check that the path exists
@@ -74,7 +78,7 @@ pub fn get_theme_path_from_name() -> Result<String, ThemerError> {
 
 pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, ThemerError> {
     let theme_path_str = get_theme_path_from_name()?;
-    let sound_ext = get_config().sound_ext;
+    let sound_ext = get_config()?.sound_ext;
 
     let sound_path_str = format!("{theme_path_str}/stereo/{}.{sound_ext}", sound_name.as_ref());
 
@@ -85,4 +89,13 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
     } else {
         Err(ThemerError::SoundPathNotFoundError(sound_path_str))
     }
+}
+
+pub fn override_theme_name<S: AsRef<str>>(theme_name: S) -> Result<(), ThemerError> {
+    {
+        let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
+        guard.theme_name = theme_name.as_ref().to_string();
+    }
+
+    Ok(())
 }

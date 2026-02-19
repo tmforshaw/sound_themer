@@ -25,4 +25,7 @@ pub enum ThemerError {
 
     #[error("Bytes could not be converted to String:\t\"{0}\"")]
     StringFromUtf8Error(#[from] std::string::FromUtf8Error),
+
+    #[error("Mutex could not be locked:\t\"{0}\"")]
+    MutexLockError(String),
 }
