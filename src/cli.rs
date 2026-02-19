@@ -50,7 +50,6 @@ fn get_default_sound_ext() -> String {
 /// Returns an error if `theme_name` or `sound_ext` could not be overriden in the `Config`
 /// Returns an error if sound could not be played using `play_sound()`
 /// Returns an error if `get_theme_path()` fails
-/// Returns an error if sound files directory doesn't exist
 /// Returns an error if `fs::read_dir()` could not be called on `theme_path`
 pub fn evaluate_cli() -> Result<(), ThemerError> {
     let cli = Cli::parse();
@@ -65,31 +64,27 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
         CliCommands::Play { sound_name } => play_sound(sound_name)?,
         CliCommands::List => {
             // Get the theme path where the sound files are
-            let theme_path_str = format!("{}/stereo/", get_theme_path()?);
+            let theme_path_str = get_theme_path()?;
 
             println!("Listing files in '{theme_path_str}':");
 
             // Check this full path exists
             let theme_path = Path::new(&theme_path_str);
-            if theme_path.exists() {
-                // Get all the files in this folder and convert to their file names
-                fs::read_dir(theme_path)
-                    .map_err(|e| ThemerError::FileReadError(e.to_string()))?
-                    .flatten()
-                    .filter_map(|entry| {
-                        let path = entry.path();
+            // Get all the files in this folder and convert to their file names
+            fs::read_dir(theme_path)
+                .map_err(|e| ThemerError::FileReadError(e.to_string()))?
+                .flatten()
+                .filter_map(|entry| {
+                    let path = entry.path();
 
-                        if path.is_file() {
-                            path.file_name().map(|file_name| format!("{}", file_name.display()))
-                        } else {
-                            None
-                        }
-                    })
-                    // Then print them each on separate lines
-                    .for_each(|file| println!("\t{file}"));
-            } else {
-                return Err(ThemerError::ThemePathNotFoundError(theme_path_str));
-            }
+                    if path.is_file() {
+                        path.file_name().map(|file_name| format!("{}", file_name.display()))
+                    } else {
+                        None
+                    }
+                })
+                // Then print them each on separate lines
+                .for_each(|file| println!("\t{file}"));
         }
     }
 

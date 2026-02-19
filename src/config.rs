@@ -70,7 +70,7 @@ pub fn get_config() -> Result<Config, ThemerError> {
 /// Returns an error if `theme_path` doesn't exist
 pub fn get_theme_path() -> Result<String, ThemerError> {
     let theme_name = get_config()?.theme_name;
-    let theme_path_str = format!("/usr/share/sounds/{theme_name}");
+    let theme_path_str = format!("/usr/share/sounds/{theme_name}/stereo");
 
     // Check that the path exists
     let theme_path = Path::new(&theme_path_str);
@@ -89,7 +89,7 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
     let theme_path_str = get_theme_path()?;
     let sound_ext = get_config()?.sound_ext;
 
-    let sound_path_str = format!("{theme_path_str}/stereo/{}.{sound_ext}", sound_name.as_ref());
+    let sound_path_str = format!("{theme_path_str}/{}.{sound_ext}", sound_name.as_ref());
 
     // Check that the sound path exists
     let sound_path = Path::new(&sound_path_str);
