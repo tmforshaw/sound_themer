@@ -59,11 +59,18 @@ By default the config file is located at `.config/sound_themer/config.toml`, whe
 
 Example Config
 ``` toml
-# Name of the sound theme folder
+# Name of the selected sound theme
 theme_name = "freedesktop"
+
+[[themes]]
+# Name of the sound theme folder
+name = "freedesktop"
 
 # Extension on the sound files
 sound_ext = "oga"
+
+# Directories where the sounds are found
+directories = ["stereo"]
 ```
 
 
