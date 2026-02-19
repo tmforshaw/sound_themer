@@ -1,2 +1,5 @@
+# Name of the sound theme folder
 theme_name = "freedesktop"
+
+# Extension on the sound files
 sound_ext = "oga"
