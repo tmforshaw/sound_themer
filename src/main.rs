@@ -13,6 +13,6 @@ pub mod sound;
 
 fn main() {
     if let Err(e) = evaluate_cli() {
-        eprintln!("{e}");
+        eprintln!("Error: {e}");
     }
 }
