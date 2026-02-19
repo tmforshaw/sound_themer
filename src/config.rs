@@ -59,11 +59,16 @@ fn get_config_from_file<S: AsRef<str>>(file_path: S) -> Config {
     toml::from_str(config.as_str()).unwrap_or_else(|e| panic!("{}", ThemerError::TomlReadError(e)))
 }
 
+/// # Errors
+/// Returns an error if `CONFIG` could not be locked
 pub fn get_config() -> Result<Config, ThemerError> {
     Ok(CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?.clone())
 }
 
-pub fn get_theme_path_from_name() -> Result<String, ThemerError> {
+/// # Errors
+/// Returns an error if `get_config()` fails
+/// Returns an error if `theme_path` doesn't exist
+pub fn get_theme_path() -> Result<String, ThemerError> {
     let theme_name = get_config()?.theme_name;
     let theme_path_str = format!("/usr/share/sounds/{theme_name}");
 
@@ -76,8 +81,12 @@ pub fn get_theme_path_from_name() -> Result<String, ThemerError> {
     }
 }
 
+/// # Errors
+/// Returns an error if `get_theme_path()` fails
+/// Returns an error if `get_config()` fails
+/// Returns an error if `sound_path` doesn't exist
 pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, ThemerError> {
-    let theme_path_str = get_theme_path_from_name()?;
+    let theme_path_str = get_theme_path()?;
     let sound_ext = get_config()?.sound_ext;
 
     let sound_path_str = format!("{theme_path_str}/stereo/{}.{sound_ext}", sound_name.as_ref());
@@ -91,6 +100,8 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
     }
 }
 
+/// # Errors
+/// Returns an error if `CONFIG` could not be locked
 pub fn override_theme_name<S: AsRef<str>>(theme_name: S) -> Result<(), ThemerError> {
     {
         let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
@@ -100,6 +111,8 @@ pub fn override_theme_name<S: AsRef<str>>(theme_name: S) -> Result<(), ThemerErr
     Ok(())
 }
 
+/// # Errors
+/// Returns an error if `CONFIG` could not be locked
 pub fn override_sound_ext<S: AsRef<str>>(sound_ext: S) -> Result<(), ThemerError> {
     {
         let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;

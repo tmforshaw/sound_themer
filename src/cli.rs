@@ -3,7 +3,7 @@ use std::{fs, path::Path};
 use clap::{Parser, Subcommand};
 
 use crate::{
-    config::{get_config, get_theme_path_from_name, override_sound_ext, override_theme_name},
+    config::{get_config, get_theme_path, override_sound_ext, override_theme_name},
     error::ThemerError,
     sound::play_sound,
 };
@@ -46,6 +46,12 @@ fn get_default_sound_ext() -> String {
     get_config().unwrap_or_else(|e| panic!("{e}")).sound_ext
 }
 
+/// # Errors
+/// Returns an error if `theme_name` or `sound_ext` could not be overriden in the `Config`
+/// Returns an error if sound could not be played using `play_sound()`
+/// Returns an error if `get_theme_path()` fails
+/// Returns an error if sound files directory doesn't exist
+/// Returns an error if `fs::read_dir()` could not be called on `theme_path`
 pub fn evaluate_cli() -> Result<(), ThemerError> {
     let cli = Cli::parse();
 
@@ -59,7 +65,7 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
         CliCommands::Play { sound_name } => play_sound(sound_name)?,
         CliCommands::List => {
             // Get the theme path where the sound files are
-            let theme_path_str = format!("{}/stereo/", get_theme_path_from_name()?);
+            let theme_path_str = format!("{}/stereo/", get_theme_path()?);
 
             println!("Listing files in '{theme_path_str}':");
 

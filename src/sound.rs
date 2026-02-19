@@ -18,6 +18,9 @@ pub fn run<S: AsRef<str>>(name: S, args: &[S]) -> Result<String, ThemerError> {
     Ok(String::from_utf8(command_output.stdout)?.trim().to_string())
 }
 
+/// # Errors
+/// Returns an error if `get_sound_from_name()` fails
+/// Returns an error if `run()` fails to execute command with arguments
 pub fn play_sound<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
     let sound_path_str = get_sound_from_name(name)?;
 
