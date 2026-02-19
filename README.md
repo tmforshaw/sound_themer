@@ -73,3 +73,4 @@ sound_ext = "oga"
 ## Requirements
 
 * `wireplumber` (Pipewire) for playing sounds via `pw-play`
+* `sound-theme-freedesktop` for a default theme
