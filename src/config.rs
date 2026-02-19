@@ -99,3 +99,12 @@ pub fn override_theme_name<S: AsRef<str>>(theme_name: S) -> Result<(), ThemerErr
 
     Ok(())
 }
+
+pub fn override_sound_ext<S: AsRef<str>>(sound_ext: S) -> Result<(), ThemerError> {
+    {
+        let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
+        guard.sound_ext = sound_ext.as_ref().to_string();
+    }
+
+    Ok(())
+}
