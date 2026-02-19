@@ -27,11 +27,13 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum CliCommands {
-    #[command(alias = "g", about = "Play a sound from the sound theme using a given sound name")]
+    /// A command to play a sound given a `sound_name`
+    #[command(alias = "p", about = "Play a sound from the sound theme using a given sound name")]
     Play {
         /// The name of the sound which will be played (from the selected theme)
         sound_name: String,
     },
+    /// A command to list all the files in the current theme's directory
     #[command(alias = "l", alias = "ls", about = "List the sounds in the sound theme")]
     List,
 }
