@@ -1,5 +1,3 @@
-use std::ffi::OsStr;
-
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
@@ -21,4 +19,10 @@ pub enum ThemerError {
 
     #[error("Could not find sound file at '{0}'")]
     SoundPathNotFoundError(String),
+
+    #[error("Command '{name}' with args '{args:?}' could not run:\t\"{e}\"")]
+    CommandError { name: String, args: Vec<String>, e: String },
+
+    #[error("Bytes could not be converted to String:\t\"{0}\"")]
+    StringFromUtf8Error(#[from] std::string::FromUtf8Error),
 }
