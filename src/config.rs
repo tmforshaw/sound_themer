@@ -1,41 +1,43 @@
-use std::{
-    fs,
-    path::Path,
-    sync::{LazyLock, Mutex},
-};
+use std::{fs, path::Path, sync::LazyLock};
 
 use serde::Deserialize;
 
-use crate::error::ThemerError;
+use crate::{
+    error::ThemerError,
+    theme::{DEFAULT_SOUND_DIRS, DEFAULT_SOUND_EXT, DEFAULT_THEME_NAME, Theme},
+};
 
-#[derive(Deserialize, Clone)]
-pub struct Config {
+#[derive(Deserialize, Clone, Debug)]
+pub struct TOMLConfig {
     /// # Documentation
     /// The name of the folder which holds the sound theme
-    #[serde(default = "get_default_theme_name")]
+    #[serde(default = "get_default_config_theme_name")]
     pub theme_name: String,
 
-    #[serde(default = "get_default_sound_ext")]
-    pub sound_ext: String,
+    // TODO probably shouldn't have a default for this
+    /// # Documentation
+    /// The configuration for each theme, defined by their name
+    #[serde(default = "get_default_config_themes")]
+    pub themes: Vec<Theme>,
 }
 
-fn get_default_theme_name() -> String {
-    String::from("freedesktop")
+fn get_default_config_theme_name() -> String {
+    String::from(DEFAULT_THEME_NAME)
 }
 
-fn get_default_sound_ext() -> String {
-    String::from("oga")
+fn get_default_config_themes() -> Vec<Theme> {
+    vec![Theme::new(DEFAULT_THEME_NAME, DEFAULT_SOUND_EXT, DEFAULT_SOUND_DIRS)]
 }
 
 const DEFAULT_CONFIG_PATH: &str = "/etc/sound_themer/config.toml";
 const CONFIG_PATH_SHORT: &str = "sound_themer/config.toml";
 
-static CONFIG: LazyLock<Mutex<Config>> = LazyLock::new(|| Mutex::new(init_config()));
+static CONFIG: LazyLock<TOMLConfig> = LazyLock::new(init_toml_config);
 
-fn init_config() -> Config {
+fn init_toml_config() -> TOMLConfig {
     let config_home = get_config_home_dir();
 
-    get_config_from_file(format!("{config_home}/{CONFIG_PATH_SHORT}"))
+    get_toml_config_from_file(format!("{config_home}/{CONFIG_PATH_SHORT}"))
 }
 
 fn get_config_home_dir() -> String {
@@ -50,7 +52,7 @@ fn get_config_home_dir() -> String {
         .to_string()
 }
 
-fn get_config_from_file<S: AsRef<str>>(file_path: S) -> Config {
+fn get_toml_config_from_file<S: AsRef<str>>(file_path: S) -> TOMLConfig {
     let config_path = Path::new(file_path.as_ref());
 
     // If the config_path doesn't point to any file, copy it from /etc/
@@ -76,65 +78,6 @@ fn get_config_from_file<S: AsRef<str>>(file_path: S) -> Config {
     toml::from_str(config.as_str()).unwrap_or_else(|e| panic!("{}", ThemerError::TomlReadError(e)))
 }
 
-/// # Errors
-/// Returns an error if `CONFIG` could not be locked
-pub fn get_config() -> Result<Config, ThemerError> {
-    Ok(CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?.clone())
-}
-
-/// # Errors
-/// Returns an error if `get_config()` fails
-/// Returns an error if `theme_path` doesn't exist
-pub fn get_theme_path() -> Result<String, ThemerError> {
-    let theme_name = get_config()?.theme_name;
-    let theme_path_str = format!("/usr/share/sounds/{theme_name}/stereo");
-
-    // Check that the path exists
-    let theme_path = Path::new(&theme_path_str);
-    if theme_path.exists() {
-        Ok(theme_path_str)
-    } else {
-        Err(ThemerError::ThemePathNotFoundError(theme_path_str))
-    }
-}
-
-/// # Errors
-/// Returns an error if `get_theme_path()` fails
-/// Returns an error if `get_config()` fails
-/// Returns an error if `sound_path` doesn't exist
-pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, ThemerError> {
-    let theme_path_str = get_theme_path()?;
-    let sound_ext = get_config()?.sound_ext;
-
-    let sound_path_str = format!("{theme_path_str}/{}.{sound_ext}", sound_name.as_ref());
-
-    // Check that the sound path exists
-    let sound_path = Path::new(&sound_path_str);
-    if sound_path.exists() {
-        Ok(sound_path_str)
-    } else {
-        Err(ThemerError::SoundPathNotFoundError(sound_path_str))
-    }
-}
-
-/// # Errors
-/// Returns an error if `CONFIG` could not be locked
-pub fn override_theme_name<S: AsRef<str>>(theme_name: S) -> Result<(), ThemerError> {
-    {
-        let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
-        guard.theme_name = theme_name.as_ref().to_string();
-    }
-
-    Ok(())
-}
-
-/// # Errors
-/// Returns an error if `CONFIG` could not be locked
-pub fn override_sound_ext<S: AsRef<str>>(sound_ext: S) -> Result<(), ThemerError> {
-    {
-        let mut guard = CONFIG.lock().map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
-        guard.sound_ext = sound_ext.as_ref().to_string();
-    }
-
-    Ok(())
+pub fn get_toml_config() -> TOMLConfig {
+    CONFIG.clone()
 }

@@ -31,4 +31,7 @@ pub enum ThemerError {
 
     #[error("Path could not be created:\t\"{0}\"")]
     PathCreateError(String),
+
+    #[error("Themes HashMap didn't contain entry '{0}'")]
+    HashMapEntryError(String),
 }
