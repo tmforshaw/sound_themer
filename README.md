@@ -48,7 +48,7 @@ sound_themer -e wav play message
 sound_themer --ext mp3 play message
 ```
 
-Use `sound_themer help` or `sound_themer <COMMAND> help` to get more info about usage
+Use `sound_themer help` to get more info about usage
 
 
 <br/>
