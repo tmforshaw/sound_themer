@@ -72,7 +72,7 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
             let theme_path = Path::new(&theme_path_str);
             // Get all the files in this folder and convert to their file names
             fs::read_dir(theme_path)
-                .map_err(|e| ThemerError::FileReadError(e.to_string()))?
+                .map_err(|e| ThemerError::FileReadWriteError(e.to_string()))?
                 .flatten()
                 .filter_map(|entry| {
                     let path = entry.path();

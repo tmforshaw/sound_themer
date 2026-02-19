@@ -2,11 +2,11 @@ use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
 pub enum ThemerError {
-    #[error("TOML could not be read to string: {0}")]
+    #[error("TOML could not be read to string:\t\"{0}\"")]
     TomlReadError(#[from] toml::de::Error),
 
-    #[error("File could not be read: {0}")]
-    FileReadError(String),
+    #[error("File could not be read/written to:\t\"{0}\"")]
+    FileReadWriteError(String),
 
     #[error("Environment variable '{0}' could not be found")]
     EnvironmentVarError(String),
@@ -28,4 +28,7 @@ pub enum ThemerError {
 
     #[error("Mutex could not be locked:\t\"{0}\"")]
     MutexLockError(String),
+
+    #[error("Path could not be created:\t\"{0}\"")]
+    PathCreateError(String),
 }
