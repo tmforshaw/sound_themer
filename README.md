@@ -23,31 +23,31 @@ It can be installed via `paru -S sound_themer`, or any other AUR package install
 
 
 ## Usage
-Play sound from config file's theme
+### Play sound from config file's theme
 ```
 sound_themer play message
 sound_themer p message
 ```
 
-List sounds in theme
+### List sounds in theme
 ```
 sound_themer list
 sound_themer ls
 sound_themer l
 ```
 
-Theme Overriding
+### Theme Overriding
 ```
 sound_themer -t test_theme play message
 sound_themer --theme test_theme play message
 ```
 
-Extension Overriding
-```
-sound_themer -e wav play message
-sound_themer --ext mp3 play message
-```
+### Filename Mapping
+Allows certain values to be overwritten by a configured value, increasing the ease-of-use across multiple themes.
 
+`sound_themer play audio-change` --> `sound_themer play audio-volume-change`
+
+### More Information
 Use `sound_themer help` to get more info about usage
 
 
@@ -57,7 +57,7 @@ Use `sound_themer help` to get more info about usage
 ## Config
 By default the config file is located at `.config/sound_themer/config.toml`, when the program is first run, if this file doesn't exist, the default config will be copied from `/etc/sound_themer/config.toml`
 
-Example Config
+### Example Config
 ``` toml
 # Name of the selected sound theme
 theme_name = "freedesktop"
