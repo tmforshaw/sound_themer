@@ -11,8 +11,12 @@ sound_ext = "oga"
 # Directories where the sounds are found
 directories = ["stereo"]
 
+# Provide a mapping between certain phrases and their respective sound file name
 [mapping]
 audio-change = "audio-volume-change"
 login = "service-login"
 logout = "service-logout"
+message = "message"
+power-plug = "power-plug"
+power-unplug = "power-unplug"
 
