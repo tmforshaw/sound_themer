@@ -12,20 +12,20 @@ sound_ext = "oga"
 directories = ["stereo"]
 
 # Provide a mapping between certain phrases and their respective sound file name
-[[mapping]]
-audio-change = "audio-volume-change"
-login = "service-login"
-logout = "service-logout"
-message = "message"
-power-plug = "power-plug"
-power-unplug = "power-unplug"
-dialog-info = "dialog-information"
-dialog-warning = "dialog-warning"
-dialog-error = "dialog-error"
-screen-capture = "screen-capture"
-device-added = "device-added"
-device-removed = "device-removed"
-camera-shutter = "camera-shutter"
-trash-empty = "trash-empty"
-complete = "complete"
-
+mapping = {
+  audio-change = "audio-volume-change",
+  login = "service-login",
+  logout = "service-logout",
+  message = "message",
+  power-plug = "power-plug",
+  power-unplug = "power-unplug",
+  dialog-info = "dialog-information",
+  dialog-warning = "dialog-warning",
+  dialog-error = "dialog-error",
+  screen-capture = "screen-capture",
+  device-added = "device-added",
+  device-removed = "device-removed",
+  camera-shutter = "camera-shutter",
+  trash-empty = "trash-empty",
+  complete = "complete"
+}

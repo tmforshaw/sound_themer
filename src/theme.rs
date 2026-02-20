@@ -18,7 +18,7 @@ pub struct Theme {
     pub sound_ext: String,
     #[serde(default = "get_default_directories")]
     pub sound_dirs: Vec<String>,
-    #[serde(default = "Mapping::default")]
+    #[serde(default)]
     pub mapping: Mapping,
 }
 
