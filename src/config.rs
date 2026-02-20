@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::{
     error::ThemerError,
+    mapping::Mapping,
     theme::{DEFAULT_SOUND_DIRS, DEFAULT_SOUND_EXT, DEFAULT_THEME_NAME, Theme},
 };
 
@@ -26,7 +27,12 @@ fn get_default_config_theme_name() -> String {
 }
 
 fn get_default_config_themes() -> Vec<Theme> {
-    vec![Theme::new(DEFAULT_THEME_NAME, DEFAULT_SOUND_EXT, DEFAULT_SOUND_DIRS)]
+    vec![Theme::new(
+        DEFAULT_THEME_NAME,
+        DEFAULT_SOUND_EXT,
+        DEFAULT_SOUND_DIRS,
+        Mapping::default(),
+    )]
 }
 
 const DEFAULT_CONFIG_PATH: &str = "/etc/sound_themer/config.toml";

@@ -1,7 +1,8 @@
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 
 use crate::{
     error::ThemerError,
+    mapping::MappingKey,
     theme::{get_selected_theme, get_selected_theme_path},
 };
 
@@ -40,11 +41,18 @@ pub fn play_sound<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
 /// Returns an error if `sound_path` doesn't exist
 pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, ThemerError> {
     let theme_path_str = get_selected_theme_path()?;
-    let sound_ext = get_selected_theme()?.sound_ext;
+    let theme = get_selected_theme()?;
+    let sound_ext = theme.sound_ext;
 
-    let sound_path_str = format!("{theme_path_str}/{}.{sound_ext}", sound_name.as_ref());
+    // Convert sound_name to MappingKey and map to its associated value (otherwise use sound_name as it is)
+    let sound_name = MappingKey::from_str(sound_name.as_ref())
+        .ok()
+        .and_then(|key| theme.mapping.get(&key).cloned()) // Map to associated value in Mapping
+        .unwrap_or_else(|| sound_name.as_ref().to_string()); // If no associated value is found, use sound_name as it is
 
-    // Check that the sound path exists
+    let sound_path_str = format!("{theme_path_str}/{sound_name}.{sound_ext}");
+
+    // Check that the sound file exists
     let sound_path = Path::new(&sound_path_str);
     if sound_path.exists() {
         Ok(sound_path_str)

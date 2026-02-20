@@ -6,7 +6,7 @@ use std::{
 
 use serde::Deserialize;
 
-use crate::{config::get_toml_config, error::ThemerError};
+use crate::{config::get_toml_config, error::ThemerError, mapping::Mapping};
 
 pub const DEFAULT_THEME_NAME: &str = "freedesktop";
 pub const DEFAULT_SOUND_EXT: &str = "oga";
@@ -18,6 +18,8 @@ pub struct Theme {
     pub sound_ext: String,
     #[serde(default = "get_default_directories")]
     pub sound_dirs: Vec<String>,
+    #[serde(default = "Mapping::default")]
+    pub mapping: Mapping,
 }
 
 fn get_default_directories() -> Vec<String> {
@@ -25,7 +27,7 @@ fn get_default_directories() -> Vec<String> {
 }
 
 impl Theme {
-    pub fn new<S: AsRef<str>, V: AsRef<[S]>>(name: S, sound_ext: S, sound_dirs: V) -> Self {
+    pub fn new<S: AsRef<str>, V: AsRef<[S]>>(name: S, sound_ext: S, sound_dirs: V, mapping: Mapping) -> Self {
         Self {
             name: name.as_ref().to_string(),
             sound_ext: sound_ext.as_ref().to_string(),
@@ -35,6 +37,7 @@ impl Theme {
                 .map(AsRef::as_ref)
                 .map(ToString::to_string)
                 .collect(),
+            mapping,
         }
     }
 }

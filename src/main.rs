@@ -9,6 +9,7 @@ use crate::cli::evaluate_cli;
 pub mod cli;
 pub mod config;
 pub mod error;
+pub mod mapping;
 pub mod sound;
 pub mod theme;
 
