@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 use crate::{
     error::ThemerError,
     sound::play_sound,
-    theme::{get_selected_theme, get_selected_theme_path, select_theme},
+    theme::{get_selected_theme, get_selected_theme_paths, select_theme},
 };
 
 #[derive(Parser, Debug)]
@@ -51,33 +51,41 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
         CliCommands::Play { sound_name } => play_sound(sound_name)?,
         CliCommands::List => {
             // Get the theme path where the sound files are
-            let theme_path_str = get_selected_theme_path()?;
+            let theme_paths = get_selected_theme_paths()?;
 
             let sound_ext = get_selected_theme()?.sound_ext;
 
-            println!("Listing '.{sound_ext}' files in '{theme_path_str}':");
+            // List files in each of the folders
+            for (i, theme_path_str) in theme_paths.iter().enumerate() {
+                println!("Listing '.{sound_ext}' files in '{theme_path_str}':");
 
-            // Check this full path exists
-            let theme_path = Path::new(&theme_path_str);
-            // Get all the files in this folder and convert to their file names
-            fs::read_dir(theme_path)
-                .map_err(|e| ThemerError::FileReadWriteError(e.to_string()))?
-                .flatten()
-                .filter_map(|entry| {
-                    let path = entry.path();
+                // Check this full path exists
+                let theme_path = Path::new(&theme_path_str);
+                // Get all the files in this folder and convert to their file names
+                fs::read_dir(theme_path)
+                    .map_err(|e| ThemerError::FileReadWriteError(e.to_string()))?
+                    .flatten()
+                    .filter_map(|entry| {
+                        let path = entry.path();
 
-                    // Check if it is a file with the correct extension
-                    if path.is_file()
-                        && let Some(ext) = path.extension()
-                        && ext == OsStr::new(&sound_ext)
-                    {
-                        path.file_name().map(|file_name| format!("{}", file_name.display()))
-                    } else {
-                        None
-                    }
-                })
-                // Then print them each on separate lines
-                .for_each(|file| println!("\t{file}"));
+                        // Check if it is a file with the correct extension
+                        if path.is_file()
+                            && let Some(ext) = path.extension()
+                            && ext == OsStr::new(&sound_ext)
+                        {
+                            path.file_name().map(|file_name| format!("{}", file_name.display()))
+                        } else {
+                            None
+                        }
+                    })
+                    // Then print them each on separate lines
+                    .for_each(|file| println!("\t{file}"));
+
+                // Add an extra newline between different path directories
+                if i < theme_paths.len() - 1 {
+                    println!();
+                }
+            }
         }
     }
 

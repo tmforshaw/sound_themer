@@ -14,11 +14,11 @@ pub enum ThemerError {
     #[error("Environment variable '{0}' could not be converted to type '&str'")]
     EnvVarToStrError(String),
 
-    #[error("Could not find theme at '{0}'")]
-    ThemePathNotFoundError(String),
+    #[error("Could not find theme directories at {0}")]
+    ThemePathsNotFoundError(String),
 
-    #[error("Could not find sound file at '{0}'")]
-    SoundPathNotFoundError(String),
+    #[error("Could not find sound file at {0}")]
+    SoundPathsNotFoundError(String),
 
     #[error("Command '{name}' with args '{args:?}' could not run:\t\"{e}\"")]
     CommandError { name: String, args: Vec<String>, e: String },

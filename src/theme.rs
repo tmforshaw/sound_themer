@@ -94,18 +94,37 @@ pub fn select_theme<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
 
 /// # Errors
 /// Returns an error if `get_selected_theme()` fails
-/// Returns an error if `theme_path` doesn't exist
-pub fn get_selected_theme_path() -> Result<String, ThemerError> {
+/// Returns an error if any of the theme paths don't exist
+pub fn get_selected_theme_paths() -> Result<Vec<String>, ThemerError> {
     let theme = get_selected_theme()?;
 
-    // TODO only allows one sound dir
-    let theme_path_str = format!("/usr/share/sounds/{}/{}", theme.name, theme.sound_dirs[0]);
+    let (theme_paths_str, path_errors) = theme
+        .sound_dirs
+        .into_iter()
+        .map(|dir| format!("/usr/share/sounds/{}/{}", theme.name, dir))
+        .fold((Vec::new(), Vec::new()), |mut acc, path_str| {
+            // Check that the path exists
+            let path = Path::new(&path_str);
+            if path.exists() {
+                acc.0.push(path_str);
+            } else {
+                acc.1.push(path_str);
+            }
 
-    // Check that the path exists
-    let theme_path = Path::new(&theme_path_str);
-    if theme_path.exists() {
-        Ok(theme_path_str)
+            acc
+        });
+
+    // Check if there were any errors with reading the directories
+    if path_errors.is_empty() {
+        Ok(theme_paths_str)
     } else {
-        Err(ThemerError::ThemePathNotFoundError(theme_path_str))
+        Err(ThemerError::ThemePathsNotFoundError(
+            // Collect the failed path strings and format them correctly for the error
+            path_errors
+                .iter()
+                .map(|path_str| format!("'{path_str}'"))
+                .collect::<Vec<_>>()
+                .join(" "),
+        ))
     }
 }

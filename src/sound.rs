@@ -3,7 +3,7 @@ use std::{path::Path, str::FromStr};
 use crate::{
     error::ThemerError,
     mapping::MappingKey,
-    theme::{get_selected_theme, get_selected_theme_path},
+    theme::{get_selected_theme, get_selected_theme_paths},
 };
 
 /// # Errors
@@ -40,7 +40,7 @@ pub fn play_sound<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
 /// Returns an error if `get_config()` fails
 /// Returns an error if `sound_path` doesn't exist
 pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, ThemerError> {
-    let theme_path_str = get_selected_theme_path()?;
+    let theme_paths = get_selected_theme_paths()?;
     let theme = get_selected_theme()?;
     let sound_ext = theme.sound_ext;
 
@@ -50,13 +50,28 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
         .and_then(|key| theme.mapping.get(&key).cloned()) // Map to associated value in Mapping
         .unwrap_or_else(|| sound_name.as_ref().to_string()); // If no associated value is found, use sound_name as it is
 
-    let sound_path_str = format!("{theme_path_str}/{sound_name}.{sound_ext}");
+    let mut checked_paths = Vec::new();
 
-    // Check that the sound file exists
-    let sound_path = Path::new(&sound_path_str);
-    if sound_path.exists() {
-        Ok(sound_path_str)
-    } else {
-        Err(ThemerError::SoundPathNotFoundError(sound_path_str))
+    for theme_path_str in theme_paths {
+        let sound_path_str = format!("{theme_path_str}/{sound_name}.{sound_ext}");
+
+        // Check if the sound file exists, return it if it does
+        let sound_path = Path::new(&sound_path_str);
+        if sound_path.exists() {
+            return Ok(sound_path_str);
+        }
+
+        // If it doesn't exist then add it to the checked files paths
+        checked_paths.push(sound_path_str);
     }
+
+    // No sound file was found in any of the theme path folders
+    Err(ThemerError::SoundPathsNotFoundError(
+        // Convert the checked paths to the correct format for the ThemerError
+        checked_paths
+            .iter()
+            .map(|file| format!("'{file}'"))
+            .collect::<Vec<_>>()
+            .join(" "),
+    ))
 }
