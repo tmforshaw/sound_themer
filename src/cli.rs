@@ -73,12 +73,13 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
                             && let Some(ext) = path.extension()
                             && ext == OsStr::new(&sound_ext)
                         {
-                            path.file_name().map(|file_name| format!("{}", file_name.display()))
+                            // Get the file name without the extension, then convert to String
+                            path.file_stem().map(|file_name| file_name.display().to_string())
                         } else {
                             None
                         }
                     })
-                    // Then print them each on separate lines
+                    // Then print them each on separate lines with some padding
                     .for_each(|file| println!("\t{file}"));
 
                 // Add an extra newline between different path directories
