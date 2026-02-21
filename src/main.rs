@@ -14,7 +14,6 @@ pub mod sound;
 pub mod theme;
 
 // TODO allow multiple sound directories for each theme
-// TODO For list filter for only with this file extension
 
 fn main() {
     if let Err(e) = evaluate_cli() {
