@@ -1,9 +1,9 @@
 # `sound_themer` — A theme-selected sound playing program
 A Linux-focused program which plays sounds from a selected theme, using only the base name (e.g: `bell` --> `/usr/share/sounds/freedesktop/stereo/bell.oga`).
+Intended for system notifications so that theming is simple and logical.
 
 Makes uses of a `config.toml` file at `.config/sound_themer/config.toml` to change the theme settings.
-
-Intended for system notifications so that theming is simple and logical.
+The themes can have multiple folders inside which contain the sound files, but each inner directory must be set in the `config.toml` file.
 
 ---
 <br/>
@@ -42,13 +42,16 @@ sound_themer -t test_theme play message
 sound_themer --theme test_theme play message
 ```
 
+### More Information
+Use `sound_themer help` to get more info about usage
+
 ### Filename Mapping
 Allows certain values to be overwritten by a configured value, increasing the ease-of-use across multiple themes.
 
 `sound_themer play audio-change` --> `sound_themer play audio-volume-change`
 
-### More Information
-Use `sound_themer help` to get more info about usage
+If no mapping is set for a theme, then the default mapping will be the mapping for `freedesktop`.
+To remove the mapping for a theme, use `mapping = {}` in the `config.toml`.
 
 
 <br/>
