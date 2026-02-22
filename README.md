@@ -9,7 +9,7 @@ The themes can have multiple folders inside which contain the sound files, but e
 <br/>
 
 <div align="center">
-  
+
 [sound_themer](https://aur.archlinux.org/packages/sound_themer) is available on the Arch User Repository.
 
 It can be installed via `paru -S sound_themer`, or any other AUR package installation service.
@@ -40,6 +40,15 @@ sound_themer l
 ```
 sound_themer -t test_theme play message
 sound_themer --theme test_theme play message
+```
+
+### Duration Overriding
+```
+sound_themer play -d 1.2 message
+sound_themer play -d 1.2s message
+sound_themer play -d 1200ms message
+sound_themer play -d 10.2% message
+sound_themer play --duration 1.2 message
 ```
 
 ### More Information
