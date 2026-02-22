@@ -24,7 +24,7 @@ impl FromStr for PlaybackDuration {
 
             // Check that the percentage is within the bounds of 0-100
             if (0.0..=100.0).contains(&value) {
-                Ok(Self::Percent(value))
+                Ok(Self::Percent(value / 100.0))
             } else {
                 Err(ThemerError::PlaybackFromStrError {
                     from: s,
