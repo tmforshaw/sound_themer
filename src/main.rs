@@ -7,6 +7,7 @@
 use crate::cli::evaluate_cli;
 
 // TODO Add timer so that sounds can be played for certain percentage or seconds of time.
+// TODO Add modularity to sound playing so other commands can be used
 
 pub mod cli;
 pub mod config;

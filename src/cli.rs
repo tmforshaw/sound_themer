@@ -48,7 +48,7 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
     }
 
     match cli.commands {
-        CliCommands::Play { sound_name } => play_sound(sound_name)?,
+        CliCommands::Play { sound_name } => play_sound(sound_name, None)?,
         CliCommands::List => {
             // Get the theme path where the sound files are
             let theme_paths = get_selected_theme_paths()?;

@@ -34,4 +34,7 @@ pub enum ThemerError {
 
     #[error("Themes HashMap didn't contain entry '{0}'")]
     HashMapEntryError(String),
+
+    #[error("Could not create a PlaybackDuration from '{from}':\t{e}")]
+    PlaybackFromStrError { from: String, e: String },
 }
