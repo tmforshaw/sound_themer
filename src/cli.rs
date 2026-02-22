@@ -3,6 +3,7 @@ use std::{ffi::OsStr, fs, path::Path};
 use clap::{Parser, Subcommand};
 
 use crate::{
+    duration::PlaybackDuration,
     error::ThemerError,
     sound::play_sound,
     theme::{get_selected_theme, get_selected_theme_paths, select_theme},
@@ -24,13 +25,17 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum CliCommands {
     /// A command to play a sound given a `sound_name`
-    #[command(alias = "p", about = "Play a sound from the sound theme using a given sound name")]
+    #[command(alias = "p", about = "Play a sound from the sound theme using a given sound name.")]
     Play {
         /// The name of the sound which will be played (from the selected theme)
         sound_name: String,
+
+        /// Limit the playback length of the sound (e.g: 250ms, 1s, 50%, 2)
+        #[arg(short, long, value_parser)]
+        duration: Option<PlaybackDuration>,
     },
     /// A command to list all the files in the current theme's directory
-    #[command(alias = "l", alias = "ls", about = "List the sounds in the sound theme")]
+    #[command(alias = "l", alias = "ls", about = "List the sounds in the sound theme.")]
     List,
 }
 
@@ -48,7 +53,7 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
     }
 
     match cli.commands {
-        CliCommands::Play { sound_name } => play_sound(sound_name, None)?,
+        CliCommands::Play { sound_name, duration } => play_sound(sound_name, duration)?,
         CliCommands::List => {
             // Get the theme path where the sound files are
             let theme_paths = get_selected_theme_paths()?;

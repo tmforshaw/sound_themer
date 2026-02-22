@@ -37,4 +37,10 @@ pub enum ThemerError {
 
     #[error("Could not create a PlaybackDuration from '{from}':\t{e}")]
     PlaybackFromStrError { from: String, e: String },
+
+    #[error("Could not create a file decoder:\t\"{0}\"")]
+    SoundDecoderError(String),
+
+    #[error("Provided duration was longer than the sound: Expected <= {0:.5}s, Found {1:.5}s")]
+    DurationTooLongError(f32, f32),
 }

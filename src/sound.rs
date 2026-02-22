@@ -1,6 +1,16 @@
-use std::{path::Path, process::Child, str::FromStr, thread, time::Duration};
+use std::{fs::File, path::Path, process::Child, str::FromStr, thread, time::Duration};
+
+use symphonia::{
+    core::{
+        io::{MediaSourceStream, MediaSourceStreamOptions},
+        meta::MetadataOptions,
+        probe::Hint,
+    },
+    default::get_probe,
+};
 
 use crate::{
+    duration::{PlaybackDuration, playback_duration_to_duration},
     error::ThemerError,
     mapping::MappingKey,
     theme::{get_selected_theme, get_selected_theme_paths},
@@ -23,15 +33,22 @@ pub fn spawn<S: AsRef<str>>(name: S, args: &[S]) -> Result<Child, ThemerError> {
 }
 
 /// # Errors
-/// Returns an error if `get_sound_from_name()` fails
-/// Returns an error if `run()` fails to execute command with arguments
-pub fn play_sound<S: AsRef<str>>(name: S, duration: Option<Duration>) -> Result<(), ThemerError> {
-    let sound_path_str = get_sound_from_name(name)?;
+/// Returns an error if `playback_duration_to_duration()` fails
+/// Returns an error if `spawn()` fails to execute command with arguments
+pub fn play_sound<S: AsRef<str> + Clone>(sound_name: S, duration: Option<PlaybackDuration>) -> Result<(), ThemerError> {
+    let sound_path_str = get_sound_from_name(sound_name.clone())?;
+
+    // Map the PlaybackDuration to a true Duration
+    let duration = if let Some(duration) = duration {
+        Some(playback_duration_to_duration(&duration, sound_name)?)
+    } else {
+        None
+    };
 
     // Spawn the process
     let mut child = spawn("pw-play", &[sound_path_str.as_str()])?;
 
-    // If a duration was set, exit early
+    // If a duration was set, exit command early
     if let Some(duration) = duration {
         thread::sleep(duration);
         let _ = child.kill(); // Send SIGKILL
@@ -81,4 +98,52 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
             .collect::<Vec<_>>()
             .join(" "),
     ))
+}
+
+/// # Errors
+/// Returns an error if the sound file path could not be gotten via `get_sound_from_name()`
+/// Returns an error if the sound file path could not be opened as a `File`
+/// Returns an error if the file probe could not be created with the given arguments
+/// Returns an error if the default track couldn't be acquired
+/// Returns an error if the sample rate could not be acquired
+/// Returns an error if the sample count could not be acquired
+pub fn get_sound_duration_from_name<S: AsRef<str>>(sound_name: S) -> Result<Duration, ThemerError> {
+    let sound_file_str = get_sound_from_name(sound_name)?;
+
+    let sound_file = File::open(sound_file_str.clone()).map_err(|e| ThemerError::FileReadWriteError(e.to_string()))?;
+
+    // Get the MediaSourceStream for this file
+    let mss = MediaSourceStream::new(Box::new(sound_file), MediaSourceStreamOptions::default());
+
+    // Probe the file to get its format
+    let probe = get_probe()
+        .format(
+            &Hint::default(),
+            mss,
+            &symphonia::core::formats::FormatOptions::default(),
+            &MetadataOptions::default(),
+        )
+        .map_err(|e| ThemerError::SoundDecoderError(e.to_string()))?;
+    let format = probe.format;
+
+    // Get the default track from the format, then get the codec parameters
+    let track = format
+        .default_track()
+        .ok_or_else(|| ThemerError::SoundDecoderError(format!("Track could not be found for '{sound_file_str}'")))?;
+    let params = &track.codec_params;
+
+    // Get the sample rate and sample count for this sound file
+    let sample_rate = f64::from(
+        params
+            .sample_rate
+            .ok_or_else(|| ThemerError::SoundDecoderError(format!("Sample rate not found for '{sound_file_str}'")))?,
+    );
+    let sample_count = f64::from(
+        params
+            .n_frames
+            .ok_or_else(|| ThemerError::SoundDecoderError(format!("Sample count not found for '{sound_file_str}'")))?
+            as u32,
+    );
+
+    Ok(Duration::from_secs_f64(sample_count / sample_rate))
 }

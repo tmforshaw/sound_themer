@@ -1,7 +1,8 @@
 use std::{str::FromStr, time::Duration};
 
-use crate::error::ThemerError;
+use crate::{error::ThemerError, sound::get_sound_duration_from_name};
 
+#[derive(Debug, Clone)]
 pub enum PlaybackDuration {
     Time(Duration),
     Percent(f32),
@@ -50,5 +51,30 @@ impl FromStr for PlaybackDuration {
 
             Ok(Self::Time(Duration::from_secs_f64(value)))
         }
+    }
+}
+
+/// # Errors
+/// Returns an error if sound duration cant be gotten from `get_sound_duration_from_name()`
+/// Returns an error if `PlaybackDuration::Time` has duration longer than sound's actual duration
+pub fn playback_duration_to_duration<S: AsRef<str>>(
+    playback_duration: &PlaybackDuration,
+    sound_name: S,
+) -> Result<Duration, ThemerError> {
+    // Map the PlaybackDuration to a true Duration
+    let sound_duration = get_sound_duration_from_name(sound_name)?;
+
+    match playback_duration {
+        PlaybackDuration::Time(duration) => {
+            if &sound_duration >= duration {
+                Ok(*duration)
+            } else {
+                Err(ThemerError::DurationTooLongError(
+                    sound_duration.as_secs_f32(),
+                    duration.as_secs_f32(),
+                ))
+            }
+        }
+        PlaybackDuration::Percent(percent) => Ok(sound_duration.mul_f32(*percent)),
     }
 }
