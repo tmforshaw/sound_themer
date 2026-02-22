@@ -1,4 +1,4 @@
-use std::{path::Path, str::FromStr};
+use std::{path::Path, process::Child, str::FromStr, thread, time::Duration};
 
 use crate::{
     error::ThemerError,
@@ -10,27 +10,34 @@ use crate::{
 /// Returns an error if the command for requested value cannot be spawned
 /// Returns an error if values in the output of the command cannot found
 /// Returns an error if output cannot be converted to String
-pub fn run<S: AsRef<str>>(name: S, args: &[S]) -> Result<String, ThemerError> {
-    // Run the command, changing any errors into CommandError with the name and args given as parameters
-    let command_output = std::process::Command::new(name.as_ref())
+pub fn spawn<S: AsRef<str>>(name: S, args: &[S]) -> Result<Child, ThemerError> {
+    // Spawn the command with the name and args given as parameters, changing any errors into CommandError
+    std::process::Command::new(name.as_ref())
         .args(args.iter().map(AsRef::as_ref))
-        .output()
+        .spawn()
         .map_err(|e| ThemerError::CommandError {
             name: name.as_ref().to_string(),
             args: args.iter().map(AsRef::as_ref).map(ToString::to_string).collect::<Vec<_>>(),
             e: e.to_string(),
-        })?;
-
-    Ok(String::from_utf8(command_output.stdout)?.trim().to_string())
+        })
 }
 
 /// # Errors
 /// Returns an error if `get_sound_from_name()` fails
 /// Returns an error if `run()` fails to execute command with arguments
-pub fn play_sound<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
+pub fn play_sound<S: AsRef<str>>(name: S, duration: Option<Duration>) -> Result<(), ThemerError> {
     let sound_path_str = get_sound_from_name(name)?;
 
-    run("pw-play", &[sound_path_str.as_str()])?;
+    // Spawn the process
+    let mut child = spawn("pw-play", &[sound_path_str.as_str()])?;
+
+    // If a duration was set, exit early
+    if let Some(duration) = duration {
+        thread::sleep(duration);
+        let _ = child.kill(); // Send SIGKILL
+    }
+
+    let _ = child.wait(); // Wait until process ended
 
     Ok(())
 }

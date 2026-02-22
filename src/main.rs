@@ -6,8 +6,11 @@
 
 use crate::cli::evaluate_cli;
 
+// TODO Add timer so that sounds can be played for certain percentage or seconds of time.
+
 pub mod cli;
 pub mod config;
+pub mod duration;
 pub mod error;
 pub mod mapping;
 pub mod sound;
