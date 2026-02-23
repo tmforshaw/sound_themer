@@ -62,6 +62,11 @@ Allows certain values to be overwritten by a configured value, increasing the ea
 If no mapping is set for a theme, then the default mapping will be the mapping for `freedesktop`.
 To remove the mapping for a theme, use `mapping = {}` in the `config.toml`.
 
+Detailed mapping entries can be defined, which set not only the name, but the duration for a specified keyword in the theme.
+The format for the duration is identical to the `--duration` flag.
+
+`login = {name = "service-login", duration = "50%"}`
+
 
 <br/>
 
@@ -87,7 +92,7 @@ directories = ["stereo"]
 # Provide a mapping between certain phrases and their respective sound file name
 mapping = {
   audio-change = "audio-volume-change",
-  login = "service-login",
+  login = {name = "service-login", duration = "100%"}, # Detailed mappings can be provided where the duration is also set
   logout = "service-logout",
   message = "message",
   power-plug = "power-plug",
