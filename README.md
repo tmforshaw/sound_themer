@@ -51,6 +51,13 @@ sound_themer play -d 10.2% message
 sound_themer play --duration 1.2 message
 ```
 
+### Randomised Theme
+```
+sound_themer -r play message
+sound_themer --random play message
+sound_themer -r ls
+```
+
 ### More Information
 Use `sound_themer help` to get more info about usage
 

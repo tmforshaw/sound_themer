@@ -6,7 +6,7 @@ use crate::{
     duration::PlaybackDuration,
     error::ThemerError,
     sound::play_sound,
-    theme::{get_selected_theme, get_selected_theme_paths, select_theme_by_name},
+    theme::{get_selected_theme, get_selected_theme_paths, select_random_theme, select_theme_by_name},
 };
 
 #[derive(Parser, Debug)]
@@ -14,9 +14,13 @@ use crate::{
 #[command(version)]
 #[command(about = "Play a sound from the sound theme, only using the filename.")]
 pub struct Cli {
-    /// A theme name override. If not set, the value in config.toml is used
-    #[arg(short, long)]
+    /// Override the theme name in config.toml, can't be set at the same time as '--random'
+    #[arg(short, long, conflicts_with("random"))]
     pub theme: Option<String>,
+
+    /// Set a random theme, can't be set at the same time as '--theme'
+    #[arg(short, long, conflicts_with("theme"))]
+    pub random: bool,
 
     #[command(subcommand)]
     pub commands: CliCommands,
@@ -46,6 +50,14 @@ pub enum CliCommands {
 /// Returns an error if `fs::read_dir()` could not be called on `theme_path`
 pub fn evaluate_cli() -> Result<(), ThemerError> {
     let cli = Cli::parse();
+
+    // Override config theme with random theme (Cant be set at the same time as --theme so this won't be overridden)
+    if cli.random {
+        select_random_theme()?;
+
+        // Print which theme was selected
+        println!("Randomly selected '{}' as theme", get_selected_theme()?.name);
+    }
 
     // Override config theme with cli parsed theme
     if let Some(theme) = cli.theme {
