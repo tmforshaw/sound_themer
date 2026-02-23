@@ -25,8 +25,8 @@ It can be installed via `paru -S sound_themer`, or any other AUR package install
 ## Usage
 ### Play sound from config file's theme
 ```
-sound_themer play message
-sound_themer p message
+sound_themer play <SOUND_NAME>
+sound_themer p <SOUND_NAME>
 ```
 
 ### List sounds in theme
@@ -38,24 +38,23 @@ sound_themer l
 
 ### Theme Overriding
 ```
-sound_themer -t test_theme play message
-sound_themer --theme test_theme play message
+sound_themer -t test_theme <COMMAND>
+sound_themer --theme test_theme <COMMAND>
 ```
 
 ### Duration Overriding
 ```
-sound_themer play -d 1.2 message
-sound_themer play -d 1.2s message
-sound_themer play -d 1200ms message
-sound_themer play -d 10.2% message
-sound_themer play --duration 1.2 message
+sound_themer play -d 1.2 <SOUND_NAME>
+sound_themer play -d 1.2s <SOUND_NAME>
+sound_themer play -d 1200ms <SOUND_NAME>
+sound_themer play -d 10.2% <SOUND_NAME>
+sound_themer play --duration 1.2 <SOUND_NAME>
 ```
 
 ### Randomised Theme
 ```
-sound_themer -r play message
-sound_themer --random play message
-sound_themer -r ls
+sound_themer -r <COMMAND>
+sound_themer --random <COMMAND>
 ```
 
 ### More Information
