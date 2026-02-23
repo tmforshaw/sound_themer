@@ -1,10 +1,11 @@
+use rand::prelude::*;
+use serde::Deserialize;
+
 use std::{
     collections::HashMap,
     path::Path,
     sync::{LazyLock, Mutex},
 };
-
-use serde::Deserialize;
 
 use crate::{config::get_toml_config, error::ThemerError, mapping::Mapping};
 
@@ -76,18 +77,46 @@ pub fn get_selected_theme() -> Result<Theme, ThemerError> {
 
 /// # Errors
 /// Returns an error if `get_theme_from_name()` fails
-/// Returns an error if `SELECTED_THEME` couldn't be locked
-pub fn select_theme<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
+/// Returns an error if `select_theme()` fails
+pub fn select_theme_by_name<S: AsRef<str>>(name: S) -> Result<(), ThemerError> {
     // Get the theme from the available themes index by their name
     let new_theme = get_theme_from_name(name)?;
 
+    // Set the new theme
+    select_theme(new_theme)?;
+
+    Ok(())
+}
+
+/// # Errors
+/// Returns an error if `SELECTED_THEME` couldn't be locked
+pub fn select_theme(theme: Theme) -> Result<(), ThemerError> {
     // Set the new theme
     {
         let mut guard = SELECTED_THEME
             .lock()
             .map_err(|e| ThemerError::MutexLockError(e.to_string()))?;
-        (*guard) = new_theme;
+        (*guard) = theme;
     }
+
+    Ok(())
+}
+
+/// # Errors
+/// Returns an error if `themes` in `TOMLConfig` is empty
+/// Returns an error if `select_theme()` fails
+pub fn select_random_theme() -> Result<(), ThemerError> {
+    let config = get_toml_config();
+    let mut rng = rand::rng();
+
+    // Get a random theme from the config, mapping to EmptyThemesError if it fails
+    let theme =
+        config.themes.choose(&mut rng).cloned().ok_or_else(|| {
+            ThemerError::EmptyThemesError(String::from("Random theme could not be selected from empty Vec<Theme>"))
+        })?;
+
+    // Set the new theme
+    select_theme(theme)?;
 
     Ok(())
 }

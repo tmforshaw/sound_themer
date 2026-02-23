@@ -43,4 +43,7 @@ pub enum ThemerError {
 
     #[error("Provided duration was longer than the sound: Expected <= {0:.5}s, Found {1:.5}s")]
     DurationTooLongError(f32, f32),
+
+    #[error("No themes found in config:\t\"{0}\"")]
+    EmptyThemesError(String),
 }

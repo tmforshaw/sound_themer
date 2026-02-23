@@ -6,7 +6,7 @@ use crate::{
     duration::PlaybackDuration,
     error::ThemerError,
     sound::play_sound,
-    theme::{get_selected_theme, get_selected_theme_paths, select_theme},
+    theme::{get_selected_theme, get_selected_theme_paths, select_theme_by_name},
 };
 
 #[derive(Parser, Debug)]
@@ -49,7 +49,7 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
 
     // Override config theme with cli parsed theme
     if let Some(theme) = cli.theme {
-        select_theme(theme)?;
+        select_theme_by_name(theme)?;
     }
 
     match cli.commands {
