@@ -12,7 +12,7 @@ use symphonia::{
 use crate::{
     duration::{PlaybackDuration, playback_duration_to_duration},
     error::ThemerError,
-    mapping::MappingKey,
+    mapping::{MappingEntry, MappingKey},
     theme::{get_selected_theme, get_selected_theme_paths},
 };
 
@@ -42,7 +42,22 @@ pub fn play_sound<S: AsRef<str> + Clone>(sound_name: S, duration: Option<Playbac
     let duration = if let Some(duration) = duration {
         Some(playback_duration_to_duration(&duration, sound_name)?)
     } else {
-        None
+        // Duration not set, so check if there is a mapping for this name that includes duration information
+        let theme = get_selected_theme()?;
+
+        // Find if there is a corresponding mapping with the duration set for this sound_name
+        let duration = MappingKey::from_str(sound_name.as_ref())
+            .ok()
+            .and_then(|key| theme.mapping.get(&key).cloned()) // Map to associated value in Mapping
+            .and_then(|mapping_entry| mapping_entry.duration()); // Map to the duration, if possible
+
+        // If there was a mapping, convert to PlaybackDuration, then to a true Duration
+        if let Some(duration) = duration {
+            let playback_duration = PlaybackDuration::from_str(duration.as_str())?;
+            Some(playback_duration_to_duration(&playback_duration, sound_name)?)
+        } else {
+            None
+        }
     };
 
     // Spawn the process
@@ -69,15 +84,15 @@ pub fn get_sound_from_name<S: AsRef<str>>(sound_name: S) -> Result<String, Theme
     let sound_ext = theme.sound_ext;
 
     // Convert sound_name to MappingKey and map to its associated value (otherwise use sound_name as it is)
-    let sound_name = MappingKey::from_str(sound_name.as_ref())
+    let mapping_entry = MappingKey::from_str(sound_name.as_ref())
         .ok()
         .and_then(|key| theme.mapping.get(&key).cloned()) // Map to associated value in Mapping
-        .unwrap_or_else(|| sound_name.as_ref().to_string()); // If no associated value is found, use sound_name as it is
+        .unwrap_or_else(|| MappingEntry::Simple(sound_name.as_ref().to_string())); // If no associated value is found, use sound_name as it is
 
     let mut checked_paths = Vec::new();
 
     for theme_path_str in theme_paths {
-        let sound_path_str = format!("{theme_path_str}/{sound_name}.{sound_ext}");
+        let sound_path_str = format!("{theme_path_str}/{mapping_entry}.{sound_ext}");
 
         // Check if the sound file exists, return it if it does
         let sound_path = Path::new(&sound_path_str);

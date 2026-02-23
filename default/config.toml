@@ -14,7 +14,7 @@ directories = ["stereo"]
 # Provide a mapping between certain phrases and their respective sound file name
 mapping = {
   audio-change = "audio-volume-change",
-  login = "service-login",
+  login = {name = "service-login", duration = "100%"}, # Detailed mappings can be provided where the duration is also set
   logout = "service-logout",
   message = "message",
   power-plug = "power-plug",

@@ -35,32 +35,34 @@ impl FromStr for MappingKey {
     }
 }
 
-fn get_default_mapping_key_value(key: MappingKey) -> String {
-    match key {
-        MappingKey::AudioChange => "audio-volume-change",
-        MappingKey::Login => "service-login",
-        MappingKey::Logout => "service-logout",
-        MappingKey::Message => "message",
-        MappingKey::PowerPlug => "power-plug",
-        MappingKey::PowerUnplug => "power-unplug",
-        MappingKey::DialogInfo => "dialog-information",
-        MappingKey::DialogWarning => "dialog-warning",
-        MappingKey::DialogError => "dialog-error",
-        MappingKey::ScreenCapture => "screen-capture",
-        MappingKey::DeviceAdded => "device-added",
-        MappingKey::DeviceRemoved => "device-removed",
-        MappingKey::CameraShutter => "camera-shutter",
-        MappingKey::TrashEmpty => "trash-empty",
-        MappingKey::Complete => "complete",
-    }
-    .to_string()
+fn get_default_mapping_key_value(key: MappingKey) -> MappingEntry {
+    MappingEntry::Simple(
+        match key {
+            MappingKey::AudioChange => "audio-volume-change",
+            MappingKey::Login => "service-login",
+            MappingKey::Logout => "service-logout",
+            MappingKey::Message => "message",
+            MappingKey::PowerPlug => "power-plug",
+            MappingKey::PowerUnplug => "power-unplug",
+            MappingKey::DialogInfo => "dialog-information",
+            MappingKey::DialogWarning => "dialog-warning",
+            MappingKey::DialogError => "dialog-error",
+            MappingKey::ScreenCapture => "screen-capture",
+            MappingKey::DeviceAdded => "device-added",
+            MappingKey::DeviceRemoved => "device-removed",
+            MappingKey::CameraShutter => "camera-shutter",
+            MappingKey::TrashEmpty => "trash-empty",
+            MappingKey::Complete => "complete",
+        }
+        .to_string(),
+    )
 }
 
 #[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
-pub struct Mapping(HashMap<MappingKey, String>);
+pub struct Mapping(HashMap<MappingKey, MappingEntry>);
 
 impl Deref for Mapping {
-    type Target = HashMap<MappingKey, String>;
+    type Target = HashMap<MappingKey, MappingEntry>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -79,6 +81,42 @@ impl Default for Mapping {
             MappingKey::iter()
                 .map(|key| (key, get_default_mapping_key_value(key)))
                 .collect(),
+        )
+    }
+}
+
+#[derive(Clone, PartialEq, PartialOrd, Ord, Eq, Debug, Deserialize)]
+#[serde(untagged)]
+pub enum MappingEntry {
+    Simple(String),
+    Detailed { name: String, duration: String },
+}
+
+impl MappingEntry {
+    #[must_use]
+    pub fn name(&self) -> String {
+        match self.clone() {
+            Self::Simple(name) | Self::Detailed { name, duration: _ } => name,
+        }
+    }
+
+    #[must_use]
+    pub fn duration(&self) -> Option<String> {
+        match self.clone() {
+            Self::Simple(_) => None,
+            Self::Detailed { name: _, duration } => Some(duration),
+        }
+    }
+}
+
+impl std::fmt::Display for MappingEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Simple(name) | Self::Detailed { name, duration: _ } => name,
+            }
         )
     }
 }
