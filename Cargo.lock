@@ -393,7 +393,7 @@ dependencies = [
 
 [[package]]
 name = "sound_themer"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "clap",
  "rand",
