@@ -11,3 +11,10 @@ strum = { version = "0.27.2", features = ["strum_macros", "derive"] }
 symphonia = "0.5.5"
 thiserror = "2.0.18"
 toml = "1.0.3"
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "play_sound_benchmark"
+harness = false
