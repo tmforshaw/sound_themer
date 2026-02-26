@@ -48,9 +48,7 @@ pub enum CliCommands {
 /// Returns an error if sound could not be played using `play_sound()`
 /// Returns an error if `get_selected_theme_path()` fails
 /// Returns an error if `fs::read_dir()` could not be called on `theme_path`
-pub fn evaluate_cli() -> Result<(), ThemerError> {
-    let cli = Cli::parse();
-
+pub fn evaluate_cli(cli: &Cli) -> Result<(), ThemerError> {
     // Override config theme with random theme (Cant be set at the same time as --theme so this won't be overridden)
     if cli.random {
         select_random_theme()?;
@@ -60,12 +58,12 @@ pub fn evaluate_cli() -> Result<(), ThemerError> {
     }
 
     // Override config theme with cli parsed theme
-    if let Some(theme) = cli.theme {
+    if let Some(theme) = &cli.theme {
         select_theme_by_name(theme)?;
     }
 
-    match cli.commands {
-        CliCommands::Play { sound_name, duration } => play_sound(sound_name, duration)?,
+    match &cli.commands {
+        CliCommands::Play { sound_name, duration } => play_sound(sound_name, duration.clone())?,
         CliCommands::List => {
             // Get the theme path where the sound files are
             let theme_paths = get_selected_theme_paths()?;
