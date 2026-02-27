@@ -121,7 +121,7 @@ mapping = {
 Some of the functions have been benchmarked to ensure that the program will play sounds as fast as possible.
 
 ### Play Sound For Duration of Zero
-A sound duration of zero has been chosen for this benchmark; the code only takes ~500 microseconds to run, so any non-zero duration of sound will completely dominate the benchmarh, obscuring the benchmark time for just the code.
+A sound duration of zero has been chosen for this benchmark; the code only takes ~500 microseconds to run, so any non-zero duration of sound will completely dominate the benchmark, obscuring the benchmark time for just the code.
 ```
 Evaluate CLI: "sound_themer play --duration 0 complete"
                         time:   [457.27 µs 465.47 µs 474.53 µs]
