@@ -8,7 +8,7 @@ fn main() {
     // Parse the CLI arguments
     let cli = Cli::parse();
 
-    if let Err(e) = evaluate_cli(&cli) {
+    if let Err(e) = evaluate_cli(&cli, std::io::stdout()) {
         eprintln!("Error: {e}");
     }
 }

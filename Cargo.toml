@@ -16,5 +16,5 @@ toml = "1.0.3"
 criterion = "0.8.2"
 
 [[bench]]
-name = "play_sound_benchmark"
+name = "cli_benchmark"
 harness = false

@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fs, path::Path};
+use std::{ffi::OsStr, fs, io::Write, path::Path};
 
 use clap::{Parser, Subcommand};
 
@@ -48,13 +48,13 @@ pub enum CliCommands {
 /// Returns an error if sound could not be played using `play_sound()`
 /// Returns an error if `get_selected_theme_path()` fails
 /// Returns an error if `fs::read_dir()` could not be called on `theme_path`
-pub fn evaluate_cli(cli: &Cli) -> Result<(), ThemerError> {
+pub fn evaluate_cli<W: Write>(cli: &Cli, mut out: W) -> Result<(), ThemerError> {
     // Override config theme with random theme (Cant be set at the same time as --theme so this won't be overridden)
     if cli.random {
         select_random_theme()?;
 
         // Print which theme was selected
-        println!("Randomly selected '{}' as theme", get_selected_theme()?.name);
+        writeln!(out, "Randomly selected '{}' as theme", get_selected_theme()?.name)?;
     }
 
     // Override config theme with cli parsed theme
@@ -72,7 +72,7 @@ pub fn evaluate_cli(cli: &Cli) -> Result<(), ThemerError> {
 
             // List files in each of the folders
             for (i, theme_path_str) in theme_paths.iter().enumerate() {
-                println!("Listing '.{sound_ext}' files in '{theme_path_str}':");
+                writeln!(out, "Listing '.{sound_ext}' files in '{theme_path_str}':")?;
 
                 // Check this full path exists
                 let theme_path = Path::new(&theme_path_str);
@@ -94,12 +94,11 @@ pub fn evaluate_cli(cli: &Cli) -> Result<(), ThemerError> {
                             None
                         }
                     })
-                    // Then print them each on separate lines with some padding
-                    .for_each(|file| println!("\t{file}"));
+                    .try_for_each(|file| writeln!(out, "\t{file}"))?;
 
                 // Add an extra newline between different path directories
                 if i < theme_paths.len() - 1 {
-                    println!();
+                    writeln!(out)?;
                 }
             }
         }

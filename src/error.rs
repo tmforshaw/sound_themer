@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug)]
 pub enum ThemerError {
     #[error("TOML could not be read to string:\t\"{0}\"")]
     TomlReadError(#[from] toml::de::Error),
@@ -46,4 +46,7 @@ pub enum ThemerError {
 
     #[error("No themes found in config:\t\"{0}\"")]
     EmptyThemesError(String),
+
+    #[error("I/O Error:\t\"{0}\"")]
+    IoError(#[from] std::io::Error),
 }
