@@ -125,28 +125,28 @@ Globally available variables like `CONFIG` or `SELECTED_THEME` are forcibly rese
 A sound duration of zero has been chosen for this benchmark; the code only takes ~150 microseconds to run, so any non-zero duration of sound will completely dominate the benchmark, obscuring the benchmark time for just the code.
 ```
 Evaluate CLI: "sound_themer play --duration 0 complete"
-                        time:   [132.39 µs 134.61 µs 136.99 µs]
-                        change: [−2.0572% −0.6224% +0.9951%] (p = 0.41 > 0.05)
+                        time:   [132.34 µs 133.89 µs 135.50 µs]
+                        change: [−1.3913% +0.2217% +1.9769%] (p = 0.79 > 0.05)
                         No change in performance detected.
 ```
 
 ### Play Sound For Duration of Zero And Change Theme
 This benchmark is the same as the previous one, but this also changes the theme.
 ```
-Evaluate CLI: "sound_themer --theme deepin play --duration 0 complete"
-                        time:   [112.08 µs 113.11 µs 114.27 µs]
-                        change: [−1.8657% −0.5480% +0.6847%] (p = 0.40 > 0.05)
+Evaluate CLI: "sound_themer --theme freedesktop play --duration 0 complete"
+                        time:   [138.63 µs 140.47 µs 142.62 µs]
+                        change: [−2.9476% −1.1450% +0.7655%] (p = 0.23 > 0.05)
                         No change in performance detected.
 ```
-It seems like the performance has improved compared to the previous benchmark, which is very odd since this implies that performance is different based on the selected theme.
+This benchmark takes ~7 microseconds longer than the previous benchmark, so it can be inferred that selecting a new theme is a very fast operation.
 
 ### List Sound Files In Theme Directories
 This benchmark makes any `println!()` macros write to `std::io::sink()`, since otherwise the benchmark time would be dominated by the slow I/O writes.
 ```
 Evaluate CLI: "sound_themer list"
-                        time:   [30.174 µs 30.293 µs 30.419 µs]
-                        change: [−3.3137% −1.9905% −0.9079%] (p = 0.00 < 0.05)
-                        Change within noise threshold.
+                        time:   [29.932 µs 30.053 µs 30.181 µs]
+                        change: [−0.8119% −0.3180% +0.1972%] (p = 0.23 > 0.05)
+                        No change in performance detected.
 ```
 
 <br/><br/>

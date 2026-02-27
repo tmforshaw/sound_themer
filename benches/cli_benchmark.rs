@@ -52,9 +52,9 @@ fn evaluate_cli_play_duration_zero_benchmark(c: &mut Criterion) {
 }
 
 /// # Documentation
-/// Call `evaluate_cli()` with "--theme deepin play --duration 0 complete" as the args
+/// Call `evaluate_cli()` with "--theme freedesktop play --duration 0 complete" as the args
 fn evaluate_cli_play_duration_zero_and_theme_benchmark(c: &mut Criterion) {
-    evaluate_cli_benchmark_inner(c, &["--theme", "deepin", "play", "--duration", "0", "complete"])
+    evaluate_cli_benchmark_inner(c, &["--theme", "freedesktop", "play", "--duration", "0", "complete"])
 }
 
 /// # Documentation
