@@ -115,6 +115,28 @@ mapping = {
 }
 ```
 
+<br/>
+
+## Performance
+Some of the functions have been benchmarked to ensure that the program will play sounds as fast as possible.
+
+### Play Sound For Duration of Zero
+A sound duration of zero has been chosen for this benchmark; the code only takes ~500 microseconds to run, so any non-zero duration of sound will completely dominate the benchmarh, obscuring the benchmark time for just the code.
+```
+Evaluate CLI: "sound_themer play --duration 0 complete"
+                        time:   [457.27 µs 465.47 µs 474.53 µs]
+                        change: [−1.8826% +1.2794% +4.7291%] (p = 0.44 > 0.05)
+                        No change in performance detected.
+```
+
+### List Sound Files In Theme Directories
+This benchmark makes any `println!()` macros write to `std::io::sink()`, since otherwise the benchmark time would be dominated by the slow I/O writes.
+```
+Evaluate CLI: "sound_themer list"
+                        time:   [92.212 µs 92.886 µs 93.661 µs]
+                        change: [+0.9912% +2.0694% +3.3097%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+```
 
 <br/><br/>
 
