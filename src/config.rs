@@ -40,7 +40,9 @@ const CONFIG_PATH_SHORT: &str = "sound_themer/config.toml";
 
 static CONFIG: LazyLock<TOMLConfig> = LazyLock::new(init_toml_config);
 
-fn init_toml_config() -> TOMLConfig {
+#[doc(hidden)]
+#[must_use]
+pub fn init_toml_config() -> TOMLConfig {
     let config_home = get_config_home_dir();
 
     get_toml_config_from_file(format!("{config_home}/{CONFIG_PATH_SHORT}"))

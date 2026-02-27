@@ -119,22 +119,33 @@ mapping = {
 
 ## Performance
 Some of the functions have been benchmarked to ensure that the program will play sounds as fast as possible.
+Globally available variables like `CONFIG` or `SELECTED_THEME` are forcibly reset for each benchmark iteration so that their lazy-evaluation can be benchmarked too.
 
 ### Play Sound For Duration of Zero
-A sound duration of zero has been chosen for this benchmark; the code only takes ~500 microseconds to run, so any non-zero duration of sound will completely dominate the benchmark, obscuring the benchmark time for just the code.
+A sound duration of zero has been chosen for this benchmark; the code only takes ~150 microseconds to run, so any non-zero duration of sound will completely dominate the benchmark, obscuring the benchmark time for just the code.
 ```
 Evaluate CLI: "sound_themer play --duration 0 complete"
-                        time:   [457.27 µs 465.47 µs 474.53 µs]
-                        change: [−1.8826% +1.2794% +4.7291%] (p = 0.44 > 0.05)
+                        time:   [132.39 µs 134.61 µs 136.99 µs]
+                        change: [−2.0572% −0.6224% +0.9951%] (p = 0.41 > 0.05)
                         No change in performance detected.
 ```
+
+### Play Sound For Duration of Zero And Change Theme
+This benchmark is the same as the previous one, but this also changes the theme.
+```
+Evaluate CLI: "sound_themer --theme deepin play --duration 0 complete"
+                        time:   [112.08 µs 113.11 µs 114.27 µs]
+                        change: [−1.8657% −0.5480% +0.6847%] (p = 0.40 > 0.05)
+                        No change in performance detected.
+```
+It seems like the performance has improved compared to the previous benchmark, which is very odd since this implies that performance is different based on the selected theme.
 
 ### List Sound Files In Theme Directories
 This benchmark makes any `println!()` macros write to `std::io::sink()`, since otherwise the benchmark time would be dominated by the slow I/O writes.
 ```
 Evaluate CLI: "sound_themer list"
-                        time:   [92.212 µs 92.886 µs 93.661 µs]
-                        change: [+0.9912% +2.0694% +3.3097%] (p = 0.00 < 0.05)
+                        time:   [30.174 µs 30.293 µs 30.419 µs]
+                        change: [−3.3137% −1.9905% −0.9079%] (p = 0.00 < 0.05)
                         Change within noise threshold.
 ```
 

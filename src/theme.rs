@@ -45,6 +45,14 @@ impl Theme {
 
 static SELECTED_THEME: LazyLock<Mutex<Theme>> = LazyLock::new(|| Mutex::new(init_selected_theme()));
 
+// Resets `SELECTED_THEME` using `init_selected_theme()`
+#[doc(hidden)]
+pub fn reset_selected_theme() {
+    *SELECTED_THEME
+        .lock()
+        .unwrap_or_else(|e| panic!("{}", ThemerError::MutexLockError(e.to_string()))) = init_selected_theme();
+}
+
 /// # Errors
 /// Returns an error if no `Theme` is mapped to `name`
 fn get_theme_from_name<S: AsRef<str>>(name: S) -> Result<Theme, ThemerError> {
