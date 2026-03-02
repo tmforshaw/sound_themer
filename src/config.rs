@@ -48,7 +48,9 @@ pub fn init_toml_config() -> TOMLConfig {
     get_toml_config_from_file(format!("{config_home}/{CONFIG_PATH_SHORT}"))
 }
 
-fn get_config_home_dir() -> String {
+#[doc(hidden)]
+#[must_use]
+pub fn get_config_home_dir() -> String {
     // Get the $XDG_CONFIG_HOME directory
     let home_os_str = std::env::var_os("XDG_CONFIG_HOME")
         .unwrap_or_else(|| panic!("{}", ThemerError::EnvironmentVarError("$XDG_CONFIG_HOME".to_string())));
