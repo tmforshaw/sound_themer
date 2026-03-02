@@ -18,3 +18,7 @@ criterion = "0.8.2"
 [[bench]]
 name = "cli_benchmark"
 harness = false
+
+[[bench]]
+name = "config_benchmark"
+harness = false

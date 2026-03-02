@@ -23,7 +23,7 @@ fn evaluate_cli_benchmark_inner<S: AsRef<str>>(c: &mut Criterion, args: &[S]) {
             b.iter_batched(
                 || {
                     {
-                        // Force the initialisation of TOMLConfig on each iteration
+                        // Include config initialisation in the benchmark
                         let config: LazyLock<TOMLConfig> = LazyLock::new(init_toml_config);
                         #[allow(clippy::explicit_auto_deref)]
                         let _cfg_ref: &TOMLConfig = &*config;
