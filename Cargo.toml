@@ -16,9 +16,14 @@ toml = "1.0.3"
 criterion = "0.8.2"
 
 [[bench]]
+name = "config_benchmark"
+harness = false
+
+[[bench]]
 name = "cli_benchmark"
 harness = false
 
 [[bench]]
-name = "config_benchmark"
+name = "theme_benchmark"
 harness = false
+

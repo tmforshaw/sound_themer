@@ -68,7 +68,9 @@ fn get_theme_from_name<S: AsRef<str>>(name: S) -> Result<Theme, ThemerError> {
 
 /// # Panics
 /// Panics if `get_theme_from_name()` fails
-fn init_selected_theme() -> Theme {
+#[doc(hidden)]
+#[must_use]
+pub fn init_selected_theme() -> Theme {
     let theme_name = get_toml_config().theme_name;
 
     get_theme_from_name(theme_name).unwrap_or_else(|e| panic!("{e}"))
